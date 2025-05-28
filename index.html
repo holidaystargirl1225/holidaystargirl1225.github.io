@@ -1,10 +1,227 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<title>holidaystargirl1225.github.io</title
-	</head>
-	<body>
-		<h1>Hello World</h1>
-		<p>I'm hosted with GitHub Pages.</p>
-	</body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+    <link rel="icon" href="favicon1_64.png" sizes="64x64">
+    <link rel="icon" href="favicon1_32.png" sizes="32x32">
+    <link rel="icon" href="favicon1_16.png" sizes="16x16">
+      <title>you're not supposed to be here.</title>
+     
+  <style>
+  
+  * { image-rendering: pixelated !important; }
+
+body { background-color: #000000; overflow: hidden; }
+
+.center { margin: 0; position: absolute; top: 50%; left: 50%; -ms-transform: translate(-50%, -50%); transform: translate(-50%, -50%); }
+
+.found { animation: move ease .5s; animation-iteration-count: 1; animation-fill-mode: forwards; animation-delay: 60s; transform: translate(0%, -1000%); }
+
+.found img { opacity: 0%; width: 200px; height: auto; }
+
+.dim { animation: fade ease 60s, desat ease 60s; animation-iteration-count: 1; animation-delay: 0s, 60s; animation-fill-mode: forwards; }
+
+        @keyframes fade {
+            0% { opacity: 0; }
+          100% { opacity: .2; }
+    }
+
+         @keyframes desat {
+            0% { filter: grayscale(0%); }
+           100% { filter: grayscale(100%); }
+    }
+
+          @keyframes move {
+            0% { top: 0px;  }
+          100% { transform: translate(0%, 0%); }
+    }
+
+.dim img { width: 200px; height: auto; }
+
+  #snowflakeContainer {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    display: none;
+  }
+
+  .snowflake {
+    position: fixed;
+    background-color: #FFFFFF;
+    user-select: none;
+    z-index: 1000;
+    pointer-events: none;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+  }
+  
+  </style>
+  
+</head>
+  <body>
+    <audio autoplay="" hidden="" loop="">
+    <source src="https://github.com/holidaystargirl1225/we-up/blob/4cfbd26f95df480a7ef443f7f0ff6ce6d15e5bc1/findher.mp3" type="audio/mpeg">
+  </audio>
+<div id="snowflakeContainer">
+  <span class="snowflake"></span>
+</div>
+
+<script>
+  let snowflakes = [];
+
+  let browserWidth;
+  let browserHeight;
+
+  let numberOfSnowflakes = 150;
+
+  let resetPosition = false;
+
+  let enableAnimations = false;
+  let reduceMotionQuery = matchMedia("(prefers-reduced-motion)");
+
+  function setAccessibilityState() {
+    if (reduceMotionQuery.matches) {
+      enableAnimations = false;
+    } else {
+      enableAnimations = true;
+    }
+  }
+  setAccessibilityState();
+
+  reduceMotionQuery.addListener(setAccessibilityState);
+
+  function setup() {
+    if (enableAnimations) {
+      window.addEventListener("DOMContentLoaded", generateSnowflakes, false);
+      window.addEventListener("resize", setResetFlag, false);
+    }
+  }
+  setup();
+
+  class Snowflake {
+    constructor(element, speed, xPos, yPos) {
+      this.element = element;
+      this.speed = speed;
+      this.xPos = xPos;
+      this.yPos = yPos;
+      this.scale = 1;
+
+      this.counter = 0;
+      this.sign = Math.random() < 0.5 ? 1 : -1;
+
+      this.element.style.opacity = (0.1 + Math.random()) / 3;
+    }
+
+    update(delta) {
+      this.counter += (this.speed / 5000) * delta;
+      this.xPos += (this.sign * delta * this.speed * Math.cos(this.counter)) / 40;
+      this.yPos += Math.sin(this.counter) / 40 + (this.speed * delta) / 30;
+      this.scale = 0.5 + Math.abs((10 * Math.cos(this.counter)) / 20);
+
+      setTransform(
+        Math.round(this.xPos),
+        Math.round(this.yPos),
+        this.scale,
+        this.element
+      );
+
+      if (this.yPos > browserHeight) {
+        this.yPos = -50;
+      }
+    }
+  }
+
+  function setTransform(xPos, yPos, scale, el) {
+    el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0) scale(${scale}, ${scale})`;
+  }
+
+  function generateSnowflakes() {
+    let originalSnowflake = document.querySelector(".snowflake");
+
+    let snowflakeContainer = originalSnowflake.parentNode;
+    snowflakeContainer.style.display = "block";
+
+    browserWidth = document.documentElement.clientWidth;
+    browserHeight = document.documentElement.clientHeight;
+
+    for (let i = 0; i < numberOfSnowflakes; i++) {
+      let snowflakeClone = originalSnowflake.cloneNode(true);
+      snowflakeContainer.appendChild(snowflakeClone);
+
+      let initialXPos = getPosition(50, browserWidth);
+      let initialYPos = getPosition(50, browserHeight);
+      let speed = (5 + Math.random() * 40) * delta;
+
+      let snowflakeObject = new Snowflake(
+        snowflakeClone,
+        speed,
+        initialXPos,
+        initialYPos
+      );
+      snowflakes.push(snowflakeObject);
+    }
+
+    snowflakeContainer.removeChild(originalSnowflake);
+
+    requestAnimationFrame(moveSnowflakes);
+  }
+  
+  let frames_per_second = 60;
+  let frame_interval = 1000 / frames_per_second;
+
+  let previousTime = performance.now();
+  let delta = 1;
+
+  function moveSnowflakes(currentTime) {
+    delta = (currentTime - previousTime) / frame_interval;
+
+    if (enableAnimations) {
+      for (let i = 0; i < snowflakes.length; i++) {
+        let snowflake = snowflakes[i];
+        snowflake.update(delta);
+      }
+    }
+
+    previousTime = currentTime;
+
+    if (resetPosition) {
+      browserWidth = document.documentElement.clientWidth;
+      browserHeight = document.documentElement.clientHeight;
+
+      for (let i = 0; i < snowflakes.length; i++) {
+        let snowflake = snowflakes[i];
+
+        snowflake.xPos = getPosition(50, browserWidth);
+        snowflake.yPos = getPosition(50, browserHeight);
+      }
+
+      resetPosition = false;
+    }
+
+    requestAnimationFrame(moveSnowflakes);
+  }
+
+  function getPosition(offset, size) {
+    return Math.round(-1 * offset + Math.random() * (size + 2 * offset));
+  }
+
+  
+  function setResetFlag(e) {
+    resetPosition = true;
+  }
+</script>
+<div class='center'>
+<div class='dim'>
+<img src='https://media.discordapp.net/attachments/1280236194533347521/1377083631482175488/noellefall.png?ex=68385552&is=683703d2&hm=209c7ac6f7e86c6b2335b70e35e2d09391ca2fba5e5b679d3201742737840cb6&='>
+  </div>
+</div>
+<div class='center'>
+  <div class='found'>
+<a href='#'><img src='https://media.discordapp.net/attachments/1280236194533347521/1377340684196905091/noelletest.png?ex=68389bf8&is=68374a78&hm=5cd0b72321ff7c58c396f907f14065d2c8268559fffa71780386316aed4f0777&='></a>
+  </div>
+</div>
+
+  </body>
 </html>
